@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plans de Mobilitat Sostenible · Model Territorial</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --g: #4aaa3c; --g2: #3d9030; --gc: #d4f0cc; --gp: #eef8eb;
+  --k: #1a1a18; --grey: #6b6b66; --bg: #f8f7f2; --w: #ffffff;
+  --or: #e0a020; --orc: #fdf6e3;
+  --bl: #3a8fc0; --blc: #e8f4fb;
+  --pk: #e05080; --pkc: #fdeef3;
+}
+html,body { height:100%; background:var(--bg); font-family:Arial,Helvetica,sans-serif; overflow:hidden; }
+
+.shell {
+  display:grid;
+  grid-template-rows: 48px 1fr 52px;
+  height:100vh;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 28px;
+}
+
+/* TOP */
+.topbar {
+  display:flex; justify-content:space-between; align-items:center;
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+}
+.topbar-brand { font-weight:700; color:var(--grey); }
+.topbar-brand span { color:var(--g); }
+.topbar-law { color:#bbb; }
+
+/* MAIN */
+.main { overflow:hidden; display:flex; align-items:stretch; }
+
+/* SLIDE */
+.slide { display:none; width:100%; animation:fu 0.38s ease forwards; }
+.slide.active { display:grid; }
+@keyframes fu { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── LAYOUT: illustration top + text bottom ── */
+.two-row {
+  grid-template-rows: 1fr auto;
+  gap: 0;
+}
+/* illustration fills top */
+.illus {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  margin: 10px 0 8px;
+  position: relative;
+}
+.illus svg { width:100%; height:100%; display:block; }
+
+/* text area */
+.txt {
+  padding: 0 4px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tag { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+.heading { font-size:clamp(18px,2.4vw,26px); font-weight:700; color:var(--k); line-height:1.2; }
+.body-row { display:flex; gap:10px; }
+.col {
+  flex:1; border-radius:10px; padding:12px 14px;
+  font-size:11.5px; line-height:1.55; color:var(--k);
+}
+.col-lbl { font-size:8.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; opacity:.6; margin-bottom:5px; }
+.col ul { list-style:none; }
+.col li { padding-left:12px; position:relative; margin-bottom:3px; opacity:.85; }
+.col li::before { content:"–"; position:absolute; left:0; opacity:.4; }
+.note { font-size:10px; opacity:.5; margin-top:6px; padding-top:6px; border-top:1px solid rgba(0,0,0,.07); line-height:1.4; }
+.chips { display:flex; gap:5px; flex-wrap:wrap; }
+.chip { font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:20px; }
+.cg  { background:var(--g);  color:#fff; }
+.cd  { background:#ebebE6; color:var(--grey); }
+.cor { background:var(--or); color:#fff; }
+.cbl { background:var(--bl); color:#fff; }
+
+/* COLOR TAGS */
+.tag-g  { color:var(--g2); }
+.tag-bl { color:var(--bl); }
+.tag-or { color:var(--or); }
+.tag-pk { color:var(--pk); }
+
+/* COLUMN BG */
+.bg-gp  { background:var(--gp); }
+.bg-blc { background:var(--blc); }
+.bg-orc { background:var(--orc); }
+.bg-pkc { background:var(--pkc); }
+.bg-f   { background:#f5f4ef; }
+.bg-hi  { border:1.5px solid var(--gc); background:var(--gp); }
+
+/* NAV */
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid rgba(0,0,0,.07); padding: 0;
+}
+.dots { display:flex; gap:6px; align-items:center; }
+.dot { width:7px; height:7px; border-radius:50%; background:#ddd; cursor:pointer; transition:all .3s; }
+.dot.on { background:var(--g); transform:scale(1.4); }
+.dot.vis { background:var(--gc); }
+.nav-btn {
+  background:none; border:1px solid #ddd; color:var(--grey);
+  padding:8px 18px; border-radius:8px; font-size:11px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:all .2s;
+}
+.nav-btn:hover:not(:disabled) { background:#f0efe9; color:var(--k); border-color:#ccc; }
+.nav-btn:disabled { opacity:.2; cursor:default; }
+.nav-btn.pr { background:var(--g); border-color:var(--g); color:#fff; }
+.nav-btn.pr:hover { background:var(--g2); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="topbar">
+  <div class="topbar-brand"><span>Entropía DO</span> + Fundació per la Mobilitat Sostenible i Segura</div>
+  <div class="topbar-law">Llei 9/2025 · RDL 7/2026 · Termini 5 desembre 2026</div>
+</div>
+
+<div class="main">
+
+<!-- ══ SLIDE 0: INTRO ══ -->
+<div class="slide two-row active" id="slide-0">
+  <div class="illus" style="background:linear-gradient(160deg,#eef8eb 0%,#e8f4fb 50%,#fdf6e3 100%);">
+    <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sky / ground -->
+      <ellipse cx="450" cy="420" rx="600" ry="180" fill="#d4f0cc" opacity=".5"/>
+      <!-- Sun -->
+      <circle cx="720" cy="80" r="55" fill="#fde68a"/>
+      <circle cx="720" cy="80" r="42" fill="#fbbf24"/>
+      <!-- Rays -->
+      <g stroke="#fbbf24" stroke-width="3" stroke-linecap="round" opacity=".5">
+        <line x1="720" y1="14" x2="720" y2="2"/>
+        <line x1="758" y1="26" x2="766" y2="16"/>
+        <line x1="776" y1="62" x2="788" y2="58"/>
+        <line x1="776" y1="98" x2="788" y2="102"/>
+        <line x1="758" y1="134" x2="766" y2="144"/>
+        <line x1="682" y1="26" x2="674" y2="16"/>
+        <line x1="664" y1="62" x2="652" y2="58"/>
+        <line x1="664" y1="98" x2="652" y2="102"/>
+      </g>
+      <!-- Cloud 1 -->
+      <g fill="white" opacity=".85">
+        <ellipse cx="180" cy="90" rx="55" ry="30"/>
+        <ellipse cx="220" cy="78" rx="38" ry="26"/>
+        <ellipse cx="145" cy="88" rx="30" ry="22"/>
+      </g>
+      <!-- Cloud 2 -->
+      <g fill="white" opacity=".7">
+        <ellipse cx="520" cy="65" rx="45" ry="24"/>
+        <ellipse cx="555" cy="55" rx="30" ry="20"/>
+        <ellipse cx="490" cy="62" rx="25" ry="18"/>
+      </g>
+      <!-- Rolling hills -->
+      <path d="M0 280 Q150 200 300 250 Q450 300 600 220 Q750 150 900 240 L900 340 L0 340Z" fill="#4aaa3c" opacity=".6"/>
+      <path d="M0 310 Q200 250 400 280 Q600 310 800 260 L900 280 L900 340 L0 340Z" fill="#3d9030" opacity=".8"/>
+
+      <!-- BICYCLE (left) -->
+      <g transform="translate(140,220)">
+        <circle cx="0" cy="0" r="32" fill="none" stroke="#3d9030" stroke-width="5"/>
+        <circle cx="72" cy="0" r="32" fill="none" stroke="#3d9030" stroke-width="5"/>
+        <circle cx="0" cy="0" r="5" fill="#3d9030"/>
+        <circle cx="72" cy="0" r="5" fill="#3d9030"/>
+        <polyline points="0,0 36,-38 72,0" fill="none" stroke="#3d9030" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <line x1="36" y1="-38" x2="36" y2="-58" stroke="#3d9030" stroke-width="4" stroke-linecap="round"/>
+        <line x1="24" y1="-58" x2="48" y2="-58" stroke="#3d9030" stroke-width="4" stroke-linecap="round"/>
+        <line x1="36" y1="-38" x2="22" y2="-26" stroke="#3d9030" stroke-width="4" stroke-linecap="round"/>
+        <!-- Rider -->
+        <circle cx="36" cy="-74" r="10" fill="#2d7a25"/>
+        <path d="M36 -64 Q28 -50 22 -26" stroke="#2d7a25" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- BUS (center) -->
+      <g transform="translate(360,170)">
+        <rect x="0" y="0" width="160" height="80" rx="14" fill="#3a8fc0"/>
+        <rect x="8" y="8" width="40" height="28" rx="5" fill="#bde3f5"/>
+        <rect x="56" y="8" width="40" height="28" rx="5" fill="#bde3f5"/>
+        <rect x="104" y="8" width="40" height="28" rx="5" fill="#bde3f5"/>
+        <rect x="0" y="44" width="160" height="36" rx="0 0 14 14" fill="#2d7aaa"/>
+        <circle cx="30" cy="90" r="14" fill="#1a5a80"/>
+        <circle cx="30" cy="90" r="7" fill="#aad4ee"/>
+        <circle cx="130" cy="90" r="14" fill="#1a5a80"/>
+        <circle cx="130" cy="90" r="7" fill="#aad4ee"/>
+        <!-- People silhouettes in windows -->
+        <ellipse cx="28" cy="16" rx="6" ry="7" fill="#5aabe0" opacity=".7"/>
+        <ellipse cx="76" cy="16" rx="6" ry="7" fill="#5aabe0" opacity=".7"/>
+        <ellipse cx="124" cy="16" rx="6" ry="7" fill="#5aabe0" opacity=".7"/>
+      </g>
+
+      <!-- WALKING PERSON (right) -->
+      <g transform="translate(680,200)" fill="#e05080">
+        <circle cx="0" cy="-50" r="14"/>
+        <path d="M0 -36 L0 10 M0 -10 L-18 10 M0 -10 L18 10 M0 10 L-14 40 M0 10 L14 40" stroke="#e05080" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Leaf in hand -->
+        <path d="M18 -20 Q30 -35 42 -20 Q30 -5 18 -20Z" fill="#4aaa3c"/>
+      </g>
+
+      <!-- ARROWS between modes -->
+      <g stroke="#4aaa3c" stroke-width="2.5" stroke-dasharray="6 4" fill="none" opacity=".5">
+        <path d="M250 225 Q300 210 360 215" marker-end="url(#arr)"/>
+        <path d="M530 215 Q600 200 660 220" marker-end="url(#arr)"/>
+      </g>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1 L8 5 L2 9" fill="none" stroke="#4aaa3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Leaf / nature accents -->
+      <g opacity=".6">
+        <path d="M820 150 Q850 120 880 150 Q850 180 820 150Z" fill="#4aaa3c"/>
+        <line x1="850" y1="150" x2="850" y2="200" stroke="#2d7a25" stroke-width="2" stroke-linecap="round"/>
+        <path d="M60 160 Q80 140 100 160 Q80 180 60 160Z" fill="#4aaa3c"/>
+        <line x1="80" y1="160" x2="80" y2="200" stroke="#2d7a25" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-g">Plans de Mobilitat Sostenible · Model Territorial</div>
+    <div class="heading">Moure'ns millor, junts.</div>
+    <div style="font-size:13px;color:var(--grey);line-height:1.6;max-width:600px;">Un procés de co-creació territorial que genera un pla de mobilitat individual, legalment vàlid, per a cada empresa del polígon.</div>
+    <div style="font-size:11px;color:#bbb;letter-spacing:.06em;">→ Prem Següent per descobrir el procés</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 1: PANORAMA ══ -->
+<div class="slide two-row" id="slide-1">
+  <div class="illus" style="background:#f8f7f2; border:1.5px solid #e8e7e0; padding:16px 20px; flex-direction:column; gap:14px; align-items:stretch;">
+    <!-- Timeline row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;position:relative;">
+      <div style="position:absolute;top:28px;left:36px;right:36px;height:2px;background:#ddd;z-index:0;"></div>
+      <!-- each step -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--blc);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.08);">🔍</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bl);text-align:center;">Recollida</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;z-index:1;width:40px;">
+        <div style="background:var(--or);color:#fff;font-size:7px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:8px;">IA</div>
+        <div style="font-size:12px;color:var(--or);">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.08);">🌱</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g2);text-align:center;">1r matí</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;z-index:1;width:40px;">
+        <div style="background:var(--or);color:#fff;font-size:7px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:8px;">IA</div>
+        <div style="font-size:12px;color:var(--or);">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#f5f4ef;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.08);">💬</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);text-align:center;">Interval</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;z-index:1;width:40px;">
+        <div style="background:var(--or);color:#fff;font-size:7px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:8px;">IA</div>
+        <div style="font-size:12px;color:var(--or);">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--orc);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.08);">🤝</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#b07010;text-align:center;">2n matí</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;z-index:1;width:40px;">
+        <div style="background:var(--or);color:#fff;font-size:7px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:8px;">IA</div>
+        <div style="font-size:12px;color:var(--or);">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;flex:1;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--gc);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.08);">✅</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g2);text-align:center;">Lliurament</div>
+      </div>
+    </div>
+    <!-- Cards row -->
+    <div style="display:flex;gap:8px;flex:1;">
+      <div style="flex:1;background:var(--blc);border-radius:12px;padding:12px 14px;">
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bl);margin-bottom:6px;">Setmanes abans</div>
+        <div style="font-size:12px;font-weight:700;color:var(--k);margin-bottom:5px;">Recollida de dades</div>
+        <div style="font-size:10.5px;color:var(--k);opacity:.75;line-height:1.5;">Enquesta plantilla · flota empresa · entrevista dir. + RLT</div>
+      </div>
+      <div style="flex:0 0 90px;background:var(--orc);border:1px solid #f0d080;border-radius:12px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+        <div style="font-size:16px;">⚡</div>
+        <div style="font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--or);">IA</div>
+        <div style="font-size:10px;color:#8a6010;line-height:1.3;">Diagnosi · entorn · propostes</div>
+      </div>
+      <div style="flex:1;background:var(--gp);border-radius:12px;padding:12px 14px;">
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g2);margin-bottom:6px;">1r matí · co-creació</div>
+        <div style="font-size:12px;font-weight:700;color:var(--k);margin-bottom:5px;">Escenari futur</div>
+        <div style="font-size:10.5px;color:var(--k);opacity:.75;line-height:1.5;">Com volem moure'ns el 2031? Tensions i oportunitats</div>
+      </div>
+      <div style="flex:1;background:#f5f4ef;border-radius:12px;padding:12px 14px;border:1.5px dashed #ddd;">
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:6px;">1–2 setmanes</div>
+        <div style="font-size:12px;font-weight:700;color:var(--k);margin-bottom:5px;">Deliberació interna</div>
+        <div style="font-size:10.5px;color:var(--k);opacity:.75;line-height:1.5;">Cada empresa revisa la proposta amb la seva direcció</div>
+      </div>
+      <div style="flex:0 0 90px;background:var(--orc);border:1px solid #f0d080;border-radius:12px;padding:12px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+        <div style="font-size:16px;">⚡</div>
+        <div style="font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--or);">IA</div>
+        <div style="font-size:10px;color:#8a6010;line-height:1.3;">Plans individuals proposats</div>
+      </div>
+      <div style="flex:1;background:var(--orc);border-radius:12px;padding:12px 14px;">
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#b07010;margin-bottom:6px;">2n matí · decisió</div>
+        <div style="font-size:12px;font-weight:700;color:var(--k);margin-bottom:5px;">Compromisos</div>
+        <div style="font-size:10.5px;color:var(--k);opacity:.75;line-height:1.5;">Massa crítica · acords inter-empresa · costos compartits</div>
+      </div>
+      <div style="flex:1;background:var(--gp);border-radius:12px;padding:12px 14px;border:1.5px solid var(--gc);">
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g2);margin-bottom:6px;">Post-taller</div>
+        <div style="font-size:12px;font-weight:700;color:var(--k);margin-bottom:5px;">Pla per empresa</div>
+        <div style="font-size:10.5px;color:var(--k);opacity:.75;line-height:1.5;">Validació dir.+RLT · format ATM · Gestor de Mobilitat</div>
+      </div>
+    </div>
+    <!-- Legal strip -->
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;background:var(--gp);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:7px 12px;font-size:10px;color:var(--g2);line-height:1.4;"><strong style="display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:2px;">Participació treballadors · inici</strong>Entrevista RLT prèvia cobreix el requisit legal d'elaboració participada</div>
+      <div style="flex:2;background:#f5f4ef;border-left:3px solid #ddd;border-radius:0 8px 8px 0;padding:7px 12px;font-size:10px;color:var(--grey);line-height:1.4;"><strong style="display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px;">Llei 9/2025 mod. RDL 7/2026 · termini 5 desembre 2026</strong>Empreses +200 treballadors. El procés territorial permet complir el requisit de forma eficient i amb major impacte real.</div>
+      <div style="flex:1;background:var(--gp);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:7px 12px;font-size:10px;color:var(--g2);line-height:1.4;"><strong style="display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:2px;">Participació treballadors · final</strong>Aprovació RLT post-taller cobreix el requisit legal de validació laboral</div>
+    </div>
+  </div>
+  <div class="txt">
+    <div class="tag tag-g">Visió global del procés</div>
+    <div class="heading">Del polígon al pla individual — d'un cop d'ull</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 2: RECOLLIDA ══ -->
+<div class="slide two-row" id="slide-2">
+  <div class="illus" style="background:linear-gradient(135deg,var(--blc) 0%,#f0f8ff 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background circles -->
+      <circle cx="450" cy="160" r="220" fill="white" opacity=".25"/>
+      <circle cx="450" cy="160" r="160" fill="white" opacity=".2"/>
+
+      <!-- Central building / factory (polígon) -->
+      <g transform="translate(370,60)">
+        <rect x="0" y="80" width="160" height="120" rx="6" fill="#3a8fc0" opacity=".15" stroke="#3a8fc0" stroke-width="2"/>
+        <rect x="20" y="60" width="40" height="140" rx="4" fill="#3a8fc0" opacity=".25" stroke="#3a8fc0" stroke-width="2"/>
+        <rect x="100" y="70" width="40" height="130" rx="4" fill="#3a8fc0" opacity=".25" stroke="#3a8fc0" stroke-width="2"/>
+        <rect x="60" y="40" width="40" height="160" rx="4" fill="#3a8fc0" opacity=".35" stroke="#3a8fc0" stroke-width="2"/>
+        <!-- Windows -->
+        <rect x="28" y="80" width="12" height="10" rx="2" fill="#3a8fc0" opacity=".6"/>
+        <rect x="28" y="100" width="12" height="10" rx="2" fill="#3a8fc0" opacity=".6"/>
+        <rect x="108" y="90" width="12" height="10" rx="2" fill="#3a8fc0" opacity=".6"/>
+        <rect x="68" y="60" width="12" height="10" rx="2" fill="#3a8fc0" opacity=".6"/>
+        <rect x="68" y="80" width="12" height="10" rx="2" fill="#3a8fc0" opacity=".6"/>
+      </g>
+
+      <!-- Arrows flowing IN to center -->
+      <g stroke="#3a8fc0" stroke-width="2.5" fill="none" stroke-dasharray="7 4" opacity=".7">
+        <path d="M80 80 Q180 100 360 140" marker-end="url(#a2)"/>
+        <path d="M80 240 Q180 210 360 175" marker-end="url(#a2)"/>
+        <path d="M820 80 Q700 100 545 140" marker-end="url(#a2)"/>
+        <path d="M820 240 Q700 210 545 175" marker-end="url(#a2)"/>
+      </g>
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1 L8 5 L2 9" fill="none" stroke="#3a8fc0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Person cards at corners -->
+      <!-- TL: person -->
+      <g transform="translate(30,40)">
+        <circle cx="25" cy="25" r="25" fill="var(--blc)" stroke="#3a8fc0" stroke-width="2"/>
+        <circle cx="25" cy="16" r="8" fill="#3a8fc0"/>
+        <path d="M10 42 Q25 32 40 42" stroke="#3a8fc0" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <text x="25" y="72" text-anchor="middle" font-size="11" fill="#3a8fc0" font-weight="700" font-family="Arial">Treballador</text>
+      </g>
+      <!-- BL: document -->
+      <g transform="translate(20,195)">
+        <rect x="0" y="0" width="50" height="60" rx="6" fill="white" stroke="#3a8fc0" stroke-width="2"/>
+        <line x1="8" y1="15" x2="42" y2="15" stroke="#3a8fc0" stroke-width="2" opacity=".5"/>
+        <line x1="8" y1="24" x2="42" y2="24" stroke="#3a8fc0" stroke-width="2" opacity=".5"/>
+        <line x1="8" y1="33" x2="34" y2="33" stroke="#3a8fc0" stroke-width="2" opacity=".5"/>
+        <text x="25" y="78" text-anchor="middle" font-size="11" fill="#3a8fc0" font-weight="700" font-family="Arial">Empresa</text>
+      </g>
+      <!-- TR: RLT badge -->
+      <g transform="translate(800,35)">
+        <circle cx="28" cy="28" r="28" fill="#fdeef3" stroke="#e05080" stroke-width="2"/>
+        <text x="28" y="23" text-anchor="middle" font-size="11" fill="#e05080" font-weight="700" font-family="Arial">RLT</text>
+        <text x="28" y="38" text-anchor="middle" font-size="10" fill="#e05080" font-family="Arial">✓</text>
+        <text x="28" y="76" text-anchor="middle" font-size="11" fill="#e05080" font-weight="700" font-family="Arial">Treballadors</text>
+      </g>
+      <!-- BR: phone/survey -->
+      <g transform="translate(795,188)">
+        <rect x="5" y="0" width="40" height="65" rx="8" fill="white" stroke="#3a8fc0" stroke-width="2"/>
+        <rect x="10" y="8" width="30" height="42" rx="3" fill="var(--blc)"/>
+        <circle cx="25" cy="58" r="4" fill="#3a8fc0" opacity=".4"/>
+        <line x1="14" y1="16" x2="36" y2="16" stroke="#3a8fc0" stroke-width="1.5" opacity=".5"/>
+        <line x1="14" y1="22" x2="36" y2="22" stroke="#3a8fc0" stroke-width="1.5" opacity=".5"/>
+        <line x1="14" y1="28" x2="30" y2="28" stroke="#3a8fc0" stroke-width="1.5" opacity=".5"/>
+        <text x="25" y="84" text-anchor="middle" font-size="11" fill="#3a8fc0" font-weight="700" font-family="Arial">Enquesta</text>
+      </g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-bl">Setmanes abans del taller</div>
+    <div class="heading">Recollida de dades per empresa</div>
+    <div class="body-row">
+      <div class="col bg-blc">
+        <div class="col-lbl">Enquesta a la plantilla</div>
+        <ul>
+          <li>Mode de transport actual</li>
+          <li>Origen i distància al polígon</li>
+          <li>Horaris i torns de treball</li>
+          <li>Disposició al canvi modal</li>
+        </ul>
+        <div class="note">Anònima · tokens individuals sense dades personals</div>
+      </div>
+      <div class="col bg-pkc">
+        <div class="col-lbl">Context empresa + RLT</div>
+        <ul>
+          <li>Plantilla, flota i ajuts actuals</li>
+          <li>Condicionants organitzatius</li>
+          <li>Entrevista a direcció</li>
+          <li>Entrevista a RLT ✓ (requisit legal)</li>
+        </ul>
+        <div class="note">L'entrevista a la RLT cobreix el primer requisit legal de participació dels treballadors</div>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip cbl">Entropía DO · treball de camp</span>
+      <span class="chip cd">Plataforma IA · enquestes</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3: IA 1 ══ -->
+<div class="slide two-row" id="slide-3">
+  <div class="illus" style="background:linear-gradient(135deg,var(--orc) 0%,#fff8e0 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Glow -->
+      <circle cx="450" cy="160" r="100" fill="#fbbf24" opacity=".12"/>
+      <circle cx="450" cy="160" r="70" fill="#fbbf24" opacity=".15"/>
+      <!-- IA core -->
+      <circle cx="450" cy="160" r="50" fill="#e0a020"/>
+      <text x="450" y="168" text-anchor="middle" font-size="26" font-weight="700" fill="white" font-family="Arial">IA</text>
+
+      <!-- Input streams (left) -->
+      <g stroke="#e0a020" stroke-width="2" fill="none" opacity=".6">
+        <path d="M80 80 Q200 120 395 150" stroke-dasharray="6 4"/>
+        <path d="M80 160 Q220 160 395 160" stroke-dasharray="6 4"/>
+        <path d="M80 240 Q200 200 395 170" stroke-dasharray="6 4"/>
+      </g>
+      <!-- Input labels -->
+      <rect x="20" y="62" width="100" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="80" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Enquestes</text>
+      <rect x="20" y="144" width="100" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="162" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Empresa</text>
+      <rect x="20" y="224" width="100" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="242" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Entorn</text>
+
+      <!-- Output streams (right) -->
+      <g stroke="#e0a020" stroke-width="2" fill="none" opacity=".6">
+        <path d="M505 150 Q640 100 800 80" stroke-dasharray="6 4"/>
+        <path d="M505 160 Q640 160 800 160" stroke-dasharray="6 4"/>
+        <path d="M505 170 Q640 220 800 240" stroke-dasharray="6 4"/>
+      </g>
+      <!-- Output labels -->
+      <rect x="780" y="62" width="110" height="28" rx="8" fill="#fbbf24" opacity=".7"/>
+      <text x="835" y="80" text-anchor="middle" font-size="11" fill="#7a5010" font-weight="700" font-family="Arial">Quotes modals</text>
+      <rect x="780" y="144" width="110" height="28" rx="8" fill="#fbbf24" opacity=".7"/>
+      <text x="835" y="162" text-anchor="middle" font-size="11" fill="#7a5010" font-weight="700" font-family="Arial">Mapa d'entorn</text>
+      <rect x="780" y="224" width="110" height="28" rx="8" fill="#fbbf24" opacity=".7"/>
+      <text x="835" y="242" text-anchor="middle" font-size="11" fill="#7a5010" font-weight="700" font-family="Arial">Propostes</text>
+
+      <!-- Arrowheads -->
+      <g fill="#e0a020">
+        <polygon points="395,143 408,150 395,157"/>
+        <polygon points="505,153 492,160 505,167"/>
+      </g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-or">La plataforma processa</div>
+    <div class="heading">Diagnosi de mobilitat per empresa i per polígon</div>
+    <div class="body-row">
+      <div class="col bg-orc">
+        <div class="col-lbl">Inputs</div>
+        <ul>
+          <li>Resultats de les enquestes per empresa</li>
+          <li>Context i flota de cada empresa</li>
+          <li>Cartografia i transport públic del territori</li>
+        </ul>
+      </div>
+      <div class="col bg-orc">
+        <div class="col-lbl">Outputs</div>
+        <ul>
+          <li>Quotes modals actuals per empresa</li>
+          <li>Mapa d'entorn · transport públic · bici · peu</li>
+          <li>Càlcul emissions CO₂ · NOx · TEP</li>
+          <li>Propostes d'actuació preliminars</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4: 1r MATÍ ══ -->
+<div class="slide two-row" id="slide-4">
+  <div class="illus" style="background:linear-gradient(135deg,var(--gp) 0%,#f0fbf0 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Table / workshop oval -->
+      <ellipse cx="450" cy="175" rx="200" ry="100" fill="white" stroke="#4aaa3c" stroke-width="2.5" opacity=".8"/>
+      <ellipse cx="450" cy="175" rx="160" ry="75" fill="#eef8eb"/>
+      <!-- Central idea star -->
+      <circle cx="450" cy="175" r="30" fill="#4aaa3c" opacity=".15"/>
+      <text x="450" y="183" text-anchor="middle" font-size="26" font-family="Arial">🌱</text>
+
+      <!-- People around the table -->
+      <g fill="#4aaa3c">
+        <!-- Top -->
+        <circle cx="450" cy="60" r="14"/>
+        <path d="M436 86 Q450 78 464 86" stroke="#4aaa3c" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Bottom -->
+        <circle cx="450" cy="294" r="14"/>
+        <path d="M436 282 Q450 290 464 282" stroke="#4aaa3c" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Left -->
+        <circle cx="230" cy="175" r="14"/>
+        <path d="M218 163 Q230 171 242 163" stroke="#4aaa3c" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Right -->
+        <circle cx="670" cy="175" r="14"/>
+        <path d="M658 163 Q670 171 682 163" stroke="#4aaa3c" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- TL -->
+        <circle cx="310" cy="95" r="14"/>
+        <!-- TR -->
+        <circle cx="590" cy="95" r="14"/>
+        <!-- BL -->
+        <circle cx="310" cy="255" r="14"/>
+        <!-- BR -->
+        <circle cx="590" cy="255" r="14"/>
+      </g>
+
+      <!-- Arrows from people to center (contributions) -->
+      <g stroke="#4aaa3c" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity=".5">
+        <line x1="450" y1="74" x2="450" y2="144"/>
+        <line x1="450" y1="280" x2="450" y2="206"/>
+        <line x1="244" y1="175" x2="288" y2="175"/>
+        <line x1="656" y1="175" x2="612" y2="175"/>
+        <line x1="320" y1="104" x2="370" y2="135"/>
+        <line x1="580" y1="104" x2="530" y2="135"/>
+        <line x1="320" y1="245" x2="370" y2="215"/>
+        <line x1="580" y1="245" x2="530" y2="215"/>
+      </g>
+
+      <!-- Speech bubbles -->
+      <g fill="white" stroke="#4aaa3c" stroke-width="1.5" opacity=".9">
+        <rect x="460" y="38" width="80" height="22" rx="8"/>
+        <polygon points="470,60 478,70 486,60" fill="white" stroke="#4aaa3c" stroke-width="1.5"/>
+        <text x="500" y="53" text-anchor="middle" font-size="10" fill="#3d9030" font-family="Arial" font-weight="700">2031?</text>
+      </g>
+      <g fill="white" stroke="#4aaa3c" stroke-width="1.5" opacity=".9">
+        <rect x="680" y="140" width="90" height="22" rx="8"/>
+        <polygon points="682,155 672,161 682,167" fill="white" stroke="#4aaa3c" stroke-width="1.5"/>
+        <text x="725" y="155" text-anchor="middle" font-size="10" fill="#3d9030" font-family="Arial" font-weight="700">Bus conjunt!</text>
+      </g>
+      <g fill="white" stroke="#4aaa3c" stroke-width="1.5" opacity=".9">
+        <rect x="130" y="140" width="95" height="22" rx="8"/>
+        <polygon points="218,155 228,161 218,167" fill="white" stroke="#4aaa3c" stroke-width="1.5"/>
+        <text x="178" y="155" text-anchor="middle" font-size="10" fill="#3d9030" font-family="Arial" font-weight="700">Mateixos orígens</text>
+      </g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-g">1r matí · taller de co-creació</div>
+    <div class="heading">Construir l'escenari de futur del polígon</div>
+    <div class="body-row">
+      <div class="col bg-gp">
+        <div class="col-lbl">Punt de partida</div>
+        <ul>
+          <li>Les empreses veuen la diagnosi juntes per primera vegada</li>
+          <li>Patrons de mobilitat compartits</li>
+          <li>Mapa d'entorn comú</li>
+        </ul>
+      </div>
+      <div class="col bg-hi">
+        <div class="col-lbl">Feina central</div>
+        <ul>
+          <li>Com volem moure'ns aquí el 2031?</li>
+          <li>Co-creació de l'escenari futur</li>
+          <li>Tensions: torns, connexions que falten</li>
+          <li>Oportunitats: orígens, espais compartibles</li>
+        </ul>
+      </div>
+      <div class="col bg-gp">
+        <div class="col-lbl">Participants</div>
+        <ul>
+          <li>Tècnics RRHH · Facilities · Logística</li>
+          <li>Sense mandat de decisió</li>
+          <li>Espai lliure per imaginar</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5: INTERVAL ══ -->
+<div class="slide two-row" id="slide-5">
+  <div class="illus" style="background:linear-gradient(135deg,#f8f7f2 0%,#efefea 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Hourglass / time metaphor -->
+      <g transform="translate(380,30)">
+        <polygon points="70,0 140,120 0,120" fill="#e8e7e2" stroke="#bbb" stroke-width="2"/>
+        <polygon points="0,140 140,140 70,260" fill="#e8e7e2" stroke="#bbb" stroke-width="2"/>
+        <line x1="0" y1="120" x2="140" y2="120" stroke="#bbb" stroke-width="3"/>
+        <line x1="0" y1="140" x2="140" y2="140" stroke="#bbb" stroke-width="3"/>
+        <!-- Sand falling -->
+        <ellipse cx="70" cy="130" rx="8" ry="6" fill="#e0a020" opacity=".5"/>
+        <line x1="70" y1="136" x2="70" y2="200" stroke="#e0a020" stroke-width="3" opacity=".3"/>
+        <!-- Sand collected -->
+        <path d="M30 240 Q70 225 110 240 L115 260 L25 260Z" fill="#e0a020" opacity=".3"/>
+      </g>
+      <!-- Left side: company deliberating -->
+      <g transform="translate(80,80)">
+        <rect x="0" y="0" width="200" height="160" rx="14" fill="white" stroke="#ddd" stroke-width="2"/>
+        <text x="100" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#3a3a38" font-family="Arial">Empresa A</text>
+        <line x1="20" y1="45" x2="180" y2="45" stroke="#eee" stroke-width="1.5"/>
+        <rect x="20" y="60" width="160" height="16" rx="4" fill="#e8f4fb"/>
+        <rect x="20" y="82" width="130" height="16" rx="4" fill="#e8f4fb"/>
+        <rect x="20" y="104" width="150" height="16" rx="4" fill="#eef8eb"/>
+        <rect x="20" y="126" width="110" height="16" rx="4" fill="#eef8eb"/>
+        <!-- Check mark -->
+        <circle cx="170" cy="134" r="12" fill="#4aaa3c" opacity=".15"/>
+        <text x="170" y="139" text-anchor="middle" font-size="14" font-family="Arial">✓</text>
+      </g>
+      <!-- Right side: IA document -->
+      <g transform="translate(620,80)">
+        <rect x="0" y="0" width="180" height="160" rx="14" fill="var(--orc)" stroke="#f0d080" stroke-width="2"/>
+        <text x="90" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#b07010" font-family="Arial">Proposta IA</text>
+        <line x1="20" y1="45" x2="160" y2="45" stroke="#f0d080" stroke-width="1.5"/>
+        <rect x="20" y="58" width="140" height="12" rx="3" fill="#fbbf24" opacity=".4"/>
+        <rect x="20" y="76" width="100" height="12" rx="3" fill="#fbbf24" opacity=".4"/>
+        <rect x="20" y="94" width="120" height="12" rx="3" fill="#fbbf24" opacity=".4"/>
+        <rect x="20" y="112" width="80" height="12" rx="3" fill="#fbbf24" opacity=".4"/>
+        <rect x="20" y="130" width="110" height="12" rx="3" fill="#fbbf24" opacity=".4"/>
+        <text x="90" y="158" text-anchor="middle" font-size="10" fill="#b07010" font-family="Arial">per empresa</text>
+      </g>
+      <!-- Arrow connecting IA to company -->
+      <path d="M620 160 Q560 160 500 160" stroke="#e0a020" stroke-width="2.5" fill="none" stroke-dasharray="6 4" marker-end="url(#ao)"/>
+      <defs>
+        <marker id="ao" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1 L8 5 L2 9" fill="none" stroke="#e0a020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag" style="color:#aaa;">Interval · 1 a 2 setmanes</div>
+    <div class="heading">Deliberació interna a cada empresa</div>
+    <div class="body-row">
+      <div class="col bg-f" style="border:1.5px dashed #ddd;">
+        <div class="col-lbl">Cada empresa fa</div>
+        <ul>
+          <li>Rep la proposta de pla individual de la plataforma</li>
+          <li>Revisa les mesures amb la seva direcció</li>
+          <li>Valora els acords inter-empresa possibles</li>
+          <li>Prepara la posició per al 2n matí</li>
+        </ul>
+      </div>
+      <div class="col bg-orc" style="border:1px solid #f0d080;">
+        <div class="col-lbl">La plataforma genera</div>
+        <ul>
+          <li>Proposta de pla individual per empresa</li>
+          <li>Mesures prioritzades per viabilitat</li>
+          <li>Simulació d'impacte per escenaris</li>
+          <li>Pressupost estimat d'implementació</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 6: IA 2 ══ -->
+<div class="slide two-row" id="slide-6">
+  <div class="illus" style="background:linear-gradient(135deg,var(--orc) 0%,#fff8e0 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="450" cy="160" r="100" fill="#fbbf24" opacity=".12"/>
+      <circle cx="450" cy="160" r="70" fill="#fbbf24" opacity=".15"/>
+      <circle cx="450" cy="160" r="50" fill="#e0a020"/>
+      <text x="450" y="168" text-anchor="middle" font-size="26" font-weight="700" fill="white" font-family="Arial">IA</text>
+      <!-- Inputs -->
+      <g stroke="#e0a020" stroke-width="2" fill="none" stroke-dasharray="6 4" opacity=".6">
+        <path d="M80 80 Q200 120 395 150"/>
+        <path d="M80 160 Q220 160 395 160"/>
+        <path d="M80 240 Q200 200 395 170"/>
+      </g>
+      <rect x="10" y="62" width="120" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="80" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Dades empresa</text>
+      <rect x="10" y="144" width="120" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="162" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Escenari taller</text>
+      <rect x="10" y="224" width="120" height="28" rx="8" fill="white" stroke="#e0a020" stroke-width="1.5"/>
+      <text x="70" y="242" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Metodologia ATM</text>
+      <!-- Outputs: documents per empresa -->
+      <g stroke="#e0a020" stroke-width="2" fill="none" stroke-dasharray="6 4" opacity=".6">
+        <path d="M505 148 Q640 100 780 75"/>
+        <path d="M505 158 Q640 155 780 155"/>
+        <path d="M505 172 Q640 210 780 240"/>
+      </g>
+      <!-- Doc icons -->
+      <g transform="translate(780,55)">
+        <rect x="0" y="0" width="45" height="55" rx="5" fill="#fbbf24" opacity=".7"/>
+        <line x1="6" y1="16" x2="39" y2="16" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="24" x2="39" y2="24" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="32" x2="30" y2="32" stroke="white" stroke-width="2"/>
+        <text x="22" y="74" text-anchor="middle" font-size="10" fill="#b07010" font-weight="700" font-family="Arial">Empresa A</text>
+      </g>
+      <g transform="translate(780,135)">
+        <rect x="0" y="0" width="45" height="55" rx="5" fill="#fbbf24" opacity=".7"/>
+        <line x1="6" y1="16" x2="39" y2="16" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="24" x2="39" y2="24" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="32" x2="30" y2="32" stroke="white" stroke-width="2"/>
+        <text x="22" y="74" text-anchor="middle" font-size="10" fill="#b07010" font-weight="700" font-family="Arial">Empresa B</text>
+      </g>
+      <g transform="translate(780,215)">
+        <rect x="0" y="0" width="45" height="55" rx="5" fill="#fbbf24" opacity=".7"/>
+        <line x1="6" y1="16" x2="39" y2="16" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="24" x2="39" y2="24" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="32" x2="30" y2="32" stroke="white" stroke-width="2"/>
+        <text x="22" y="74" text-anchor="middle" font-size="10" fill="#b07010" font-weight="700" font-family="Arial">Empresa C</text>
+      </g>
+      <g fill="#e0a020">
+        <polygon points="395,143 408,150 395,157"/>
+        <polygon points="505,153 492,160 505,167"/>
+      </g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-or">La plataforma genera</div>
+    <div class="heading">Proposta de pla individual per a cada empresa</div>
+    <div class="body-row">
+      <div class="col bg-orc">
+        <div class="col-lbl">Combina</div>
+        <ul>
+          <li>Dades individuals de cada empresa</li>
+          <li>Estratègia territorial del 1r matí</li>
+          <li>Metodologia i paràmetres ATM 2025</li>
+        </ul>
+      </div>
+      <div class="col bg-orc">
+        <div class="col-lbl">Produeix</div>
+        <ul>
+          <li>Mesures adaptades a cada empresa</li>
+          <li>Objectius −10% VP · −15% CO₂</li>
+          <li>Cronograma i pressupost estimat</li>
+          <li>Format .docx homologat ATM</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 7: 2n MATÍ ══ -->
+<div class="slide two-row" id="slide-7">
+  <div class="illus" style="background:linear-gradient(135deg,var(--orc) 0%,#fef9f0 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Handshake center -->
+      <g transform="translate(350,80)">
+        <!-- Left hand -->
+        <path d="M0 120 Q20 80 60 70 L80 90 Q60 95 55 110 L110 110 Q130 108 130 130 Q130 150 110 150 L50 150 Q30 155 20 170" fill="#fde8c0" stroke="#e0a020" stroke-width="2"/>
+        <!-- Right hand -->
+        <path d="M200 120 Q180 80 140 70 L120 90 Q140 95 145 110 L90 110 Q70 108 70 130 Q70 150 90 150 L150 150 Q170 155 180 170" fill="#fde8c0" stroke="#e0a020" stroke-width="2"/>
+        <!-- Handshake join -->
+        <ellipse cx="100" cy="130" rx="35" ry="25" fill="#e0a020" opacity=".3"/>
+        <text x="100" y="138" text-anchor="middle" font-size="20" font-family="Arial">🤝</text>
+      </g>
+
+      <!-- Companies agreeing (circles with arrows) -->
+      <g>
+        <!-- Company A -->
+        <circle cx="150" cy="160" r="45" fill="var(--blc)" stroke="#3a8fc0" stroke-width="2"/>
+        <text x="150" y="155" text-anchor="middle" font-size="11" fill="#3a8fc0" font-weight="700" font-family="Arial">Empresa</text>
+        <text x="150" y="172" text-anchor="middle" font-size="11" fill="#3a8fc0" font-weight="700" font-family="Arial">A</text>
+        <!-- Arrow -->
+        <path d="M195 160 Q270 120 340 130" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ag)"/>
+      </g>
+      <g>
+        <!-- Company B -->
+        <circle cx="150" cy="260" r="45" fill="var(--gp)" stroke="#4aaa3c" stroke-width="2"/>
+        <text x="150" y="255" text-anchor="middle" font-size="11" fill="#3d9030" font-weight="700" font-family="Arial">Empresa</text>
+        <text x="150" y="272" text-anchor="middle" font-size="11" fill="#3d9030" font-weight="700" font-family="Arial">B</text>
+        <path d="M195 250 Q270 220 340 185" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ag)"/>
+      </g>
+      <g>
+        <!-- Company C -->
+        <circle cx="750" cy="160" r="45" fill="var(--pkc)" stroke="#e05080" stroke-width="2"/>
+        <text x="750" y="155" text-anchor="middle" font-size="11" fill="#e05080" font-weight="700" font-family="Arial">Empresa</text>
+        <text x="750" y="172" text-anchor="middle" font-size="11" fill="#e05080" font-weight="700" font-family="Arial">C</text>
+        <path d="M705 160 Q630 120 560 130" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ag)"/>
+      </g>
+      <g>
+        <!-- Company D -->
+        <circle cx="750" cy="260" r="45" fill="var(--orc)" stroke="#e0a020" stroke-width="2"/>
+        <text x="750" y="255" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">Empresa</text>
+        <text x="750" y="272" text-anchor="middle" font-size="11" fill="#b07010" font-weight="700" font-family="Arial">D</text>
+        <path d="M705 250 Q630 220 560 185" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ag)"/>
+      </g>
+      <!-- Bus shared icon in center-bottom -->
+      <g transform="translate(390,240)">
+        <rect x="0" y="0" width="120" height="50" rx="10" fill="#3a8fc0" opacity=".8"/>
+        <rect x="8" y="6" width="24" height="18" rx="3" fill="#bde3f5"/>
+        <rect x="38" y="6" width="24" height="18" rx="3" fill="#bde3f5"/>
+        <rect x="68" y="6" width="24" height="18" rx="3" fill="#bde3f5"/>
+        <circle cx="25" cy="54" r="8" fill="#1a5a80"/>
+        <circle cx="95" cy="54" r="8" fill="#1a5a80"/>
+        <text x="60" y="35" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="Arial">Bus compartit</text>
+      </g>
+      <defs>
+        <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1 L8 5 L2 9" fill="none" stroke="#4aaa3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-or">2n matí · taller de decisió</div>
+    <div class="heading">Compromisos i massa crítica</div>
+    <div class="body-row">
+      <div class="col bg-orc">
+        <div class="col-lbl">La pregunta clau</div>
+        <ul>
+          <li>Quines mesures s'activen si prou empreses s'hi apunten?</li>
+          <li>Bus compartit · carpooling · aparcament bici · horaris escalonats</li>
+          <li>Distribució de costos compartits</li>
+        </ul>
+      </div>
+      <div class="col bg-orc" style="border:1.5px solid #f0d080;">
+        <div class="col-lbl">Qui hi participa</div>
+        <ul>
+          <li>Perfils amb mandat de la seva direcció</li>
+          <li>Han revisat prèviament la proposta de pla</li>
+          <li>Poden comprometre la seva empresa</li>
+        </ul>
+        <div class="note">El canvi de perfil respecte al 1r matí és deliberat i essencial per tancar acords reals</div>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip cor">Perfils amb mandat</span>
+      <span class="chip cd">Acords inter-empresa</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 8: LLIURAMENT ══ -->
+<div class="slide two-row" id="slide-8">
+  <div class="illus" style="background:linear-gradient(135deg,var(--gp) 0%,#f0fbf0 60%,#e8f4fb 100%);">
+    <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sunburst -->
+      <circle cx="450" cy="160" r="90" fill="#4aaa3c" opacity=".08"/>
+      <circle cx="450" cy="160" r="65" fill="#4aaa3c" opacity=".1"/>
+      <!-- Checkmark center -->
+      <circle cx="450" cy="160" r="44" fill="#4aaa3c"/>
+      <path d="M430 160 L444 175 L472 145" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Document cards fanning out -->
+      <g transform="translate(580,60) rotate(-8)">
+        <rect x="0" y="0" width="80" height="105" rx="8" fill="white" stroke="#4aaa3c" stroke-width="2"/>
+        <rect x="8" y="10" width="64" height="8" rx="3" fill="#d4f0cc"/>
+        <rect x="8" y="24" width="50" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="36" width="56" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="48" width="44" height="6" rx="3" fill="#eee"/>
+        <circle cx="68" cy="90" r="10" fill="#4aaa3c" opacity=".2"/>
+        <text x="68" y="95" text-anchor="middle" font-size="12" font-family="Arial">✓</text>
+        <text x="40" y="120" text-anchor="middle" font-size="9" fill="#3d9030" font-family="Arial" font-weight="700">Empresa B</text>
+      </g>
+      <g transform="translate(620,90) rotate(5)">
+        <rect x="0" y="0" width="80" height="105" rx="8" fill="white" stroke="#4aaa3c" stroke-width="2"/>
+        <rect x="8" y="10" width="64" height="8" rx="3" fill="#d4f0cc"/>
+        <rect x="8" y="24" width="50" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="36" width="56" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="48" width="44" height="6" rx="3" fill="#eee"/>
+        <circle cx="68" cy="90" r="10" fill="#4aaa3c" opacity=".2"/>
+        <text x="68" y="95" text-anchor="middle" font-size="12" font-family="Arial">✓</text>
+        <text x="40" y="120" text-anchor="middle" font-size="9" fill="#3d9030" font-family="Arial" font-weight="700">Empresa C</text>
+      </g>
+      <g transform="translate(560,105) rotate(-2)">
+        <rect x="0" y="0" width="80" height="105" rx="8" fill="white" stroke="#4aaa3c" stroke-width="2.5"/>
+        <rect x="8" y="10" width="64" height="8" rx="3" fill="#4aaa3c" opacity=".4"/>
+        <rect x="8" y="24" width="50" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="36" width="56" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="48" width="44" height="6" rx="3" fill="#eee"/>
+        <rect x="8" y="60" width="38" height="6" rx="3" fill="#eee"/>
+        <circle cx="68" cy="90" r="10" fill="#4aaa3c" opacity=".3"/>
+        <text x="68" y="95" text-anchor="middle" font-size="12" font-family="Arial">✓</text>
+        <text x="40" y="120" text-anchor="middle" font-size="9" fill="#3d9030" font-family="Arial" font-weight="700">Empresa A</text>
+      </g>
+
+      <!-- Left: people / RLT stamp -->
+      <g transform="translate(150,80)">
+        <!-- Two people -->
+        <circle cx="30" cy="30" r="18" fill="var(--gp)" stroke="#4aaa3c" stroke-width="2"/>
+        <circle cx="70" cy="30" r="18" fill="var(--gp)" stroke="#4aaa3c" stroke-width="2"/>
+        <circle cx="30" cy="22" r="8" fill="#4aaa3c"/>
+        <circle cx="70" cy="22" r="8" fill="#4aaa3c"/>
+        <path d="M16 44 Q30 36 44 44" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 44 Q70 36 84 44" stroke="#4aaa3c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <text x="50" y="70" text-anchor="middle" font-size="11" fill="#3d9030" font-weight="700" font-family="Arial">Dir. + RLT</text>
+        <!-- Stamp -->
+        <circle cx="50" cy="110" r="28" fill="none" stroke="#4aaa3c" stroke-width="3" stroke-dasharray="4 3"/>
+        <text x="50" y="106" text-anchor="middle" font-size="10" fill="#4aaa3c" font-weight="700" font-family="Arial">APROVAT</text>
+        <text x="50" y="120" text-anchor="middle" font-size="9" fill="#4aaa3c" font-family="Arial">✓</text>
+      </g>
+
+      <!-- Deadline pill -->
+      <rect x="300" y="265" width="300" height="36" rx="18" fill="#4aaa3c"/>
+      <text x="450" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="Arial">Termini: 5 desembre 2026</text>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="tag tag-g">Post-taller · lliurament</div>
+    <div class="heading">Un pla individual per a cada empresa</div>
+    <div class="body-row">
+      <div class="col bg-gp">
+        <div class="col-lbl">La plataforma genera</div>
+        <ul>
+          <li>Pla definitiu amb compromisos del 2n matí</li>
+          <li>Diagnosi · mesures · cronograma</li>
+          <li>Format .docx homologat ATM</li>
+        </ul>
+      </div>
+      <div class="col bg-hi">
+        <div class="col-lbl">Validació legal</div>
+        <ul>
+          <li>Aprovació per direcció i RLT ✓</li>
+          <li>Designació del Gestor de Mobilitat ✓</li>
+          <li>Registre davant l'ATM ✓</li>
+        </ul>
+        <div class="note">Termini legal: 5 desembre 2026</div>
+      </div>
+      <div class="col bg-gp">
+        <div class="col-lbl">Seguiment</div>
+        <ul>
+          <li>Informe cada 2 anys</li>
+          <li>Revisió del pla als 6 anys</li>
+        </ul>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip cg">Llei 9/2025 · compliment acreditat</span>
+      <span class="chip cd">Metodologia ATM 2025</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn" id="bp" onclick="nav(-1)" disabled>← Anterior</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn pr" id="bn" onclick="nav(1)">Següent →</button>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+const N=9; let c=0;
+function nav(d){ const n=c+d; if(n<0||n>=N)return; go(n); }
+function go(n){
+  document.getElementById('slide-'+c).classList.remove('active');
+  c=n;
+  document.getElementById('slide-'+c).classList.add('active');
+  document.getElementById('bp').disabled=c===0;
+  const bn=document.getElementById('bn');
+  bn.disabled=c===N-1; bn.textContent=c===N-1?'—':'Següent →';
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('on',i===c);
+    d.classList.toggle('vis',i<c&&i!==c);
+  });
+}
+const el=document.getElementById('dots');
+for(let i=0;i<N;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=()=>go(i);
+  el.appendChild(d);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();nav(1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();nav(-1);}
+});
+</script>
+</body>
+</html>
